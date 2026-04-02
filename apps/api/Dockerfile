@@ -26,7 +26,7 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-COPY --from=base /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=base /app/package.json /app/pnpm-workspace.yaml /app/pnpm-lock.yaml ./
 COPY --from=base /app/apps/api/package.json ./apps/api/
 COPY --from=base /app/packages/db/package.json ./packages/db/
 
