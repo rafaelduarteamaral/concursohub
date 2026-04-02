@@ -1,0 +1,138 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: concursohub-postgres-dev
+    environment:
+      POSTGRES_USER: ${DB_USER:-concursohub}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-concursohub}
+      POSTGRES_DB: concursohub
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./packages/db/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-concursohub} -d concursohub']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - concursohub-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: concursohub-redis-dev
+    ports:
+      - '6380:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - concursohub-network
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: concursohub-api-dev
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${DB_USER:-concursohub}:${DB_PASSWORD:-concursohub}@postgres:5432/concursohub
+      - REDIS_URL=redis://redis:6379
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - REVALIDATE_SECRET=${REVALIDATE_SECRET:-dev-secret}
+      - PORT=3001
+      - AI_PROVIDER=${AI_PROVIDER:-ollama}
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-gemma3:4b}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - concursohub-network
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: concursohub-web-dev
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://api:3001
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-dev-secret}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@concursohub.com.br}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
+      - REVALIDATE_SECRET=${REVALIDATE_SECRET:-dev-secret}
+    depends_on:
+      - api
+    networks:
+      - concursohub-network
+
+  worker-scraper:
+    build:
+      context: ./workers/scraper
+      dockerfile: Dockerfile
+    container_name: concursohub-scraper-dev
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-concursohub}:${DB_PASSWORD:-concursohub}@postgres:5432/concursohub
+      - REDIS_URL=redis://redis:6379
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - concursohub-network
+
+  worker-ai:
+    build:
+      context: ./workers/ai_processor
+      dockerfile: Dockerfile
+    container_name: concursohub-ai-dev
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-concursohub}:${DB_PASSWORD:-concursohub}@postgres:5432/concursohub
+      - REDIS_URL=redis://redis:6379
+      - AI_PROVIDER=${AI_PROVIDER:-ollama}
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-gemma3:4b}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - REVALIDATE_SECRET=${REVALIDATE_SECRET:-dev-secret}
+      - PYTHONUNBUFFERED=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - concursohub-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  concursohub-network:
+    driver: bridge

@@ -1,0 +1,18 @@
+{
+  "name": "concursohub",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel --filter './apps/*' dev",
+    "build": "pnpm --filter './packages/*' build && pnpm --filter './apps/*' build",
+    "lint": "pnpm --parallel --filter './apps/*' lint",
+    "db:migrate": "psql $DATABASE_URL -f packages/db/migrations/001_extensions.sql -f packages/db/migrations/002_sources.sql -f packages/db/migrations/003_concursos.sql -f packages/db/migrations/004_ai_prompts.sql"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

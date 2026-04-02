@@ -1,0 +1,52 @@
+# Node
+node_modules/
+.next/
+dist/
+build/
+.turbo/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+pnpm-lock.yaml
+
+# Env files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test
+coverage/
+.nyc_output/
+
+# Misc
+*.bak
+*.tmp
