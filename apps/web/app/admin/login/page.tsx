@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { Suspense, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -41,27 +43,15 @@ function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="text-sm font-medium mb-1 block" htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        />
+        <input id="email" type="email" autoComplete="email" value={email}
+          onChange={(e) => setEmail(e.target.value)} required
+          className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
       </div>
       <div>
         <label className="text-sm font-medium mb-1 block" htmlFor="password">Senha</label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        />
+        <input id="password" type="password" autoComplete="current-password" value={password}
+          onChange={(e) => setPassword(e.target.value)} required
+          className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <Button type="submit" className="w-full" disabled={loading}>
