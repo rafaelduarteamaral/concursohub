@@ -76,7 +76,7 @@ def save_concurso_to_db(conn, concurso: ConcursoData) -> Optional[str]:
             cur.execute(
                 """
                 INSERT INTO concursos (
-                    id, source_id, original_url, raw_title, raw_content,
+                    id, source_id, original_url, titulo, raw_content,
                     orgao, inscricoes_fim, edital_url, ai_status, status
                 ) VALUES (
                     %s, %s, %s, %s, %s, %s, %s, %s, 'pending', 'previsto'
