@@ -23,6 +23,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 WORKDIR /app/apps/web
+RUN mkdir -p ./public
 RUN pnpm build
 
 FROM node:20-alpine AS runner
