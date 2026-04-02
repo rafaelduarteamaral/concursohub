@@ -7,7 +7,7 @@ build/
 *.log
 npm-debug.log*
 pnpm-debug.log*
-pnpm-lock.yaml
+# pnpm-lock.yaml  # tracked intentionally for reproducible builds
 
 # Env files
 .env
