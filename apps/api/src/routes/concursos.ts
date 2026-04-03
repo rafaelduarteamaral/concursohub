@@ -164,7 +164,7 @@ export default async function concursosRoutes(fastify: FastifyInstance): Promise
         `SELECT c.*, s.name as source_name, s.type as source_type, s.url as source_url
          FROM concursos c
          LEFT JOIN sources s ON c.source_id = s.id
-         WHERE c.slug = $1`,
+         WHERE c.slug = $1 OR c.id::text = $1`,
         [slug],
       );
 
@@ -174,7 +174,7 @@ export default async function concursosRoutes(fastify: FastifyInstance): Promise
 
       // Async view count increment
       client.query(
-        'UPDATE concursos SET view_count = view_count + 1 WHERE slug = $1',
+        'UPDATE concursos SET view_count = view_count + 1 WHERE slug = $1 OR id::text = $1',
         [slug],
       ).catch((err) => fastify.log.error({ err }, 'Failed to increment view count'));
 

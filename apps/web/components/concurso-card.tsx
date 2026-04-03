@@ -62,7 +62,7 @@ export function ConcursoCard({ concurso, featured = false }: ConcursoCardProps) 
         : `${formatCurrency(concurso.salario_min)} – ${formatCurrency(concurso.salario_max)}`
       : concurso.remuneracao_texto || null;
 
-  const href = `/concurso/${concurso.slug}`;
+  const href = `/concurso/${concurso.slug ?? concurso.id}`;
 
   return (
     <Link href={href} className="group block">
